@@ -37,29 +37,78 @@ pnpm dev
 bun dev
 Open http://localhost:3000 with your browser.
 
-************************* IMPORTANT ************************
-this is a simple ai vehicle search and list cars platform named Vehiql.
-it has nextjs for frontend /  backend, supabase prisma for database, gemini api (2.5-flash) for ai api to extract vehicle data for search and extract related data to fill form for listing, ui.schadcn.com for ui components, 
+************************* IMPORTANT ************************  
 
-hope you will enjoy making this project and learn a lot
+This project is a **simple AI-powered vehicle search and car listing platform** named **Vehiql**.  
 
-✨ Features in Lading page
-🔝 Header → Logo on the left, Login button on the right. It is very simple header navbar for the main layout which only has logo and login button. which will be used if the user is only on home page and not in admin or main page. as when layout is wrapped by clerkProvider like <ClerkProvider>{...layouts}</ClerkProvider> then and if clerk auth such as signin, signup , userprofile or such is called then it will be dynamic routing which makes the app slow as. and yes we will be calling those clerk auth in main and admim layouts to show user profile from clerk and signin, signup conditions and show the navitems accordingly.
+- **Frontend / Backend** → Next.js  
+- **Database** → Supabase + Prisma  
+- **AI API** → Gemini (2.5-flash) for extracting vehicle data from text or images and auto-filling car listing forms  
+- **UI Components** → [shadcn/ui](https://ui.shadcn.com)  
 
-🎯 Hero Section → Core value proposition with a modern intro, It will just have h1 text and sub text.
-the main things it will have is a search section where users can serach cars with text and image. image search will be doen by gemini api and react-drop-down where user can drop the image in the drop box and click search and the gemini will find the car make and bodytype and it will be injected in /cars url and it will be filtered accordingly and displayed.
+The goal is to help you **learn modern full-stack development** while building a practical AI-driven app.  
 
-🚘 Featured Cars → Handpicked vehicles for quick discovery. It will display featured cars featured by admins.
+---
 
-🏷️ Browse by Make → Filter cars by manufacturer. Here user can find the cars according to the brand listed.
+## ✨ Features on the Landing Page  
 
-⭐ Why Choose Us → Benefits that differentiate our platform
+### 🔝 Header  
+- Minimal and simple header containing only the **logo (left)** and **login button (right)**.  
+- This header is shown only on the **home page**, not on `admin` or `main` layouts.  
+- Reason: Wrapping layouts in `<ClerkProvider>{...layouts}</ClerkProvider>` triggers **dynamic routing** when using Clerk authentication (`sign-in`, `sign-up`, `user-profile`), which can slow down the app.  
+- Instead, Clerk authentication will be integrated in **main** and **admin layouts** to dynamically show user profile, sign-in/up buttons, and nav items.  
 
-🚗 Browse by Body Type → SUV, Sedan, Hatchback, Convertible, etc.  Here user can find the cars according to the body type listed.
+---
 
-❓ FAQ Section → Common user questions answered
+### 🎯 Hero Section  
+- Clean **H1 heading** and **sub-text** introducing the platform.  
+- Includes a **search section** where users can search cars using:  
+  - **Text input** → filter cars by make or body type.  
+  - **Image upload** → powered by **Gemini API**.  
+    - Users drag & drop an image via `react-dropzone`.  
+    - Gemini analyzes the image to detect car **make** and **body type**.  
+    - Results are injected into the `/cars` URL and displayed with filters applied.  
 
-📩 Newsletter / CTA → Subscribe for updates or view all cars or to explore more about this app
+---
+
+### 🚘 Featured Cars  
+- Section showcasing vehicles **curated by admins** for quick discovery.  
+
+---
+
+### 🏷️ Browse by Make  
+- Filter cars by **manufacturer/brand**.  
+- Users can quickly find vehicles from their preferred brand.  
+
+---
+
+### ⭐ Why Choose Us  
+- Highlights **benefits and differentiators** of Vehiql compared to other platforms.  
+
+---
+
+### 🚗 Browse by Body Type  
+- Filter cars by **SUV, Sedan, Hatchback, Convertible**, etc.  
+- Helps users explore cars based on preferred body style.  
+
+---
+
+### ❓ FAQ Section  
+- Answers common user questions.  
+- Reduces user confusion and improves onboarding experience.  
+
+---
+
+### 📩 Newsletter / CTA  
+- Allows users to:  
+  - Subscribe for updates.  
+  - View all cars.  
+  - Explore more about the platform.  
+
+---
+
+This README note is designed so new developers or contributors can quickly understand **what Vehiql is, how it works, and what makes it unique**.
+
 
 🗂️ Project Structure
 bash
