@@ -28,13 +28,13 @@ Clone the repository and install dependencies:
 
 ```bash
 git clone git@github.com:HangLimbu995/AI-Vehiql-platform.git
-cd AI-Vehiql-platform
+cd AI-Vehiql-platform/ai-vehiql
 npm install
-Run the development server:
+```
 
-bash
-Copy
-Edit
+Then, run the development server:
+
+```bash
 npm run dev
 # or
 yarn dev
@@ -42,9 +42,10 @@ yarn dev
 pnpm dev
 # or
 bun dev
-Open http://localhost:3000 with your browser.
+```
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-************************* IMPORTANT ************************  
+### 🔔 Important
 
 This project is a **simple AI-powered vehicle search and car listing platform** named **Vehiql**.  
 
@@ -118,27 +119,34 @@ This README note is designed so new developers or contributors can quickly under
 
 
 🗂️ Project Structure
-bash
-Copy
-Edit
+
+```text
 AI-Vehiql-platform/
-├── app/                 # Next.js App Router pages
-│   ├── (auth)           # Authentication routes
-│   ├── (admin)  
-    |--        # Admin dashboard
-│   ├── (main)           # Public-facing routes
-│   └── layout.js        # Root layout
-├── components/          # Reusable React components
-├── styles/              # Global styles & Tailwind config
-├── public/              # Static assets (images, icons, etc.)
-├── package.json         # Dependencies and scripts
-└── README.md            # Project documentation
+└─ ai-vehiql/
+   ├─ app/                 # Next.js App Router pages
+   │  ├─ (auth)/           # Authentication routes
+   │  ├─ (admin)/          # Admin dashboard routes
+   │  ├─ (main)/           # Public-facing routes
+   │  ├─ globals.css       # Global styles
+   │  ├─ layout.js         # Root layout
+   │  └─ page.js           # Home page
+   ├─ components/          # Reusable React components
+   │  └─ ui/               # shadcn/ui components
+   ├─ lib/                 # Utilities and helpers
+   ├─ public/              # Static assets (images, icons, etc.)
+   ├─ components.json      # shadcn/ui config
+   ├─ eslint.config.mjs    # ESLint config
+   ├─ jsconfig.json        # Path aliases / TS config base
+   ├─ next.config.mjs      # Next.js config
+   ├─ postcss.config.mjs   # PostCSS/Tailwind config
+   ├─ package.json         # Dependencies and scripts
+   └─ README.md            # Project documentation
+```
+
 🗂️ Route Groups
-Auth → Sign in, sign up
-
-Admin → Management dashboard for content and data control
-
-Main → Public pages (home, listings, car details, etc.)
+- **Auth**: Sign in, sign up
+- **Admin**: Management dashboard for content and data control
+- **Main**: Public pages (home, listings, car details, etc.)
 
 ## 🧩 UI Library: shadcn/ui (installed)
 shadcn/ui components are included locally under `components/ui`, built on top of Radix UI primitives and styled with Tailwind CSS. They are fully themeable and can be edited in-place.
@@ -168,17 +176,15 @@ shadcn/ui components are included locally under `components/ui`, built on top of
 All of these are already set up and can be used by importing from `@/components/ui/*`.
 
 📚 Learn More
-Next.js Documentation – Learn about Next.js features and API
-
-Learn Next.js – Interactive tutorial
-
-TailwindCSS Docs – Styling framework
-
-Vercel Deployment Guide
+- [Next.js Documentation](https://nextjs.org/docs) – Learn about Next.js features and API
+- [Learn Next.js](https://nextjs.org/learn) – Interactive tutorial
+- [Tailwind CSS Docs](https://tailwindcss.com/docs) – Styling framework
+- [shadcn/ui](https://ui.shadcn.com) – Component library used in this project
+- [Vercel Deployment Guide](https://nextjs.org/docs/app/building-your-application/deploying)
 
 🚀 Deployment
 Easily deploy on Vercel (the creators of Next.js):
-
+- [Deploy on Vercel](https://vercel.com/new)
 
 🤝 Contributing
 Contributions, issues, and feature requests are welcome!
