@@ -3,14 +3,14 @@ import Link from "next/link";
 
 const BrandCard = ({ brand }) => {
   return (
-    <Link 
+    <Link
       href={`/brands/${brand.slug}`}
       className="group block"
       aria-label={`Browse ${brand.name} cars`}
     >
-      <div className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 hover:border-gray-200 text-center py-2">
+      <div className="brand-card-gradient bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-gray-100 hover:border-gray-200 text-center py-2">
         {/* Brand Logo */}
-        <div className="relative h-20 w-20 mx-auto mb-4 group-hover:scale-110 transition-transform duration-300">
+        <div className="relative h-20 w-20 mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 brand-logo-wrap">
           <Image
             src={brand.logo}
             alt={`${brand.name} logo`}
