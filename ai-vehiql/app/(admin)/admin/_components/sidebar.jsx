@@ -30,19 +30,100 @@ const routes = [
 	},
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ mobile = false }) => {
 	const pathname = usePathname();
 	const [collapsed, setCollapsed] = useState(false);
 
 	const items = useMemo(() => routes, []);
 
+	// determine the best (longest) matching route so parent routes ("/admin")
+	// are not incorrectly marked active when a deeper child route matches.
+	const activeHref = useMemo(() => {
+		if (!pathname) return null;
+		let best = null;
+		for (const r of items) {
+			const href = r.href;
+			if (pathname === href || pathname.startsWith(href + "/")) {
+				if (!best || href.length > best.length) best = href;
+			}
+		}
+		return best;
+	}, [items, pathname]);
+
+	// Mobile bottom bar
+	if (mobile) {
+		return (
+			<nav
+				role="navigation"
+				aria-label="Admin bottom navigation"
+				data-component="admin-bottom-nav"
+				className="fixed inset-x-4 bottom-4 z-50 md:hidden"
+			>
+				<ul
+					className="flex items-center justify-between bg-white/95 backdrop-blur-md rounded-2xl shadow-lg border border-slate-100 px-3 py-2"
+					data-ai="admin-bottom-list"
+				>
+					{items.map((route) => {
+						// use best-match instead of naive startsWith to avoid multiple active items
+						const active = activeHref === route.href;
+
+						return (
+							<li key={route.href} className="flex-1 text-center">
+								<Link
+									href={route.href}
+									title={route.label}
+									aria-current={active ? "page" : undefined}
+									className={cn(
+										"inline-flex flex-col items-center justify-center gap-1 px-2 py-1 rounded-lg transition-colors",
+										active
+											? "text-blue-600"
+											: "text-slate-600 hover:text-slate-800"
+									)}
+									data-route={route.href}
+								>
+									<route.icon
+										className={cn(
+											"h-5 w-5 transition-colors",
+											active ? "text-blue-600" : "text-slate-500"
+										)}
+										aria-hidden="true"
+									/>
+									<span
+										className={cn(
+											"text-[10px] leading-none mt-0.5",
+											"sr-only"
+										)}
+									>
+										{route.label}
+									</span>
+
+									{/* active dot */}
+									<span
+										aria-hidden="true"
+										className={cn(
+											"mt-1 h-1.5 w-1.5 rounded-full transition-opacity",
+											active
+												? "bg-blue-500 opacity-100"
+												: "bg-transparent opacity-0"
+										)}
+									/>
+								</Link>
+							</li>
+						);
+					})}
+				</ul>
+			</nav>
+		);
+	}
+
+	// Desktop / sidebar
 	return (
 		<>
 			<nav
 				role="navigation"
 				aria-label="Admin sidebar"
 				className={cn(
-					"flex flex-col bg-white border-r border-slate-100 shadow-sm transition-all",
+					"flex flex-col bg-white border-r border-slate-100 shadow-sm transition-all h-full",
 					collapsed ? "w-16" : "w-64"
 				)}
 				data-component="admin-sidebar"
@@ -75,9 +156,8 @@ const Sidebar = () => {
 
 				<ul className="flex-1 overflow-auto py-4 px-2 space-y-1">
 					{items.map((route) => {
-						const active =
-							pathname === route.href ||
-							pathname?.startsWith(route.href + "/");
+						// only the best matching href is active
+						const active = activeHref === route.href;
 
 						return (
 							<li key={route.href} className="px-1">
