@@ -1,8 +1,6 @@
 const { useState, useRef } = require("react");
 const { toast } = require("sonner");
 
-
-
 const useFetch = (cb) => {
   const [data, setData] = useState(undefined);
   const [loading, setLoading] = useState(false);
@@ -27,3 +25,5 @@ const useFetch = (cb) => {
 
   return { data, loading, fn, error, setData };
 };
+
+export default useFetch;
