@@ -176,7 +176,7 @@ const AddCarForm = () => {
     }
   }, [aiResult]);
 
-
+  
   const extractDetails = async () => {
     if (!uploadedAiImage) {
       toast.error("Please upload an image first");
