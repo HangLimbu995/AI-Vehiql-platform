@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { v4 as uuid4 } from "uuid";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { serializeCarData } from "@/lib/helper";
+import { success, tuple } from "zod";
 
 function ErrorMessage(message) {
   return {
@@ -207,5 +209,126 @@ export async function addCar({ carData, images }) {
   } catch (error) {
     console.error("Add Car error", error);
     throw new Error("Error adding car:" + error.message);
+  }
+}
+
+export async function getCars(search = "") {
+  try {
+    let where = {};
+
+    if (search) {
+      const terms = search.split(" ").filter(Boolean);
+
+      where.OR = terms.map((term) => [
+        { make: { contains: term, mode: "insensitive" } },
+        { model: { contains: term, mode: "insensitive" } },
+        { color: { contains: term, mode: "insensitive" } },
+        { year: { equals: parseInt(term) || undefined } },
+      ]);
+    }
+
+    const cars = await db.car.findMany({
+      where,
+      orderdBy: { createdAt: "desc" },
+    });
+
+    const serializeCars = cars.map(serializeCarData);
+
+    return {
+      success: true,
+      data: serializeCars,
+    };
+  } catch (error) {
+    console.error("Error fetching car data:", error);
+    return ErrorMessage(error.message);
+  }
+}
+
+export async function deleteCar(carId) {
+  try {
+    const { userId } = await auth();
+    if (!userId) return ErrorMessage("Not Authorized!");
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+    if (!user) return ErrorMessage("User Not Found!");
+    if (user.role !== "ADMIN") return ErrorMessage("Not Authorized!");
+
+    const car = await db.car.findUnique({
+      where: { id: carId },
+    });
+
+    if (!car) return ErrorMessage("Car Not Found!");
+
+    await db.car.delete({
+      where: { id: carId },
+    });
+
+    try {
+      const cookies = await cookies();
+      const supabase = createClient(cookies);
+
+      // Get the folder path from the first image URL
+      if (car.images.length > 0) {
+        const firstImageurl = car.images[0];
+        const url = new URL(firstImageurl);
+        const pathMatch = url.pathname.match(/\/car-images\/(cars\/[^/]+)/);
+        console.log("path match is", pathMatch);
+        if (pathMatch) {
+          const folderPath = pathMatch[1]; // This will be "cars/uuid"
+
+          // First list all files in the folder
+          const { data: files, error: listError } = await supabase.storage
+            .from("car-images")
+            .list(folderPath);
+
+          if (listError) {
+            console.error("Error listing files:", listError);
+            throw new Error(`Failed to list files: ${listError.message}`);
+          }
+
+          if (files && files.length > 0) {
+            // Create array of full paths to delete
+            const pathsToDelete = files.map(
+              (file) => `${folderPath}/${file.name}`
+            );
+
+            // Delete all files
+            const { error: deleteError } = await supabase.storage
+              .from("car-images")
+              .remove(pathsToDelete);
+
+            if (deleteError) {
+              console.error("Error deleting files:", deleteError);
+              console.error("Error details:", {
+                message: deleteError.message,
+                statusCode: deleteError.status,
+                name: deleteError.name,
+              });
+            } else {
+              console.log("Successfully deleted all files in folder");
+            }
+          } else {
+            console.log("No files found in the folder to delete");
+            return ErrorMessage("No files found in the folder to delete");
+          }
+        }
+      }
+    } catch (storageError) {
+      console.error("Error deleting car images from storage:", storageError);
+      return ErrorMessage(
+        "Car deleted but failed to delete images from storage: " +
+          storageError.message
+      );
+    }
+
+    revalidatePath("/admin/cars");
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    console.error("Delete Car error", error);
+    return { success: false, error: error.message };
   }
 }
