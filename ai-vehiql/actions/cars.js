@@ -219,7 +219,7 @@ export async function getCars(search = "") {
     if (search) {
       const terms = search.split(" ").filter(Boolean);
 
-      where.OR = terms.map((term) => [
+      where.OR = terms.flatMap((term) => [
         { make: { contains: term, mode: "insensitive" } },
         { model: { contains: term, mode: "insensitive" } },
         { color: { contains: term, mode: "insensitive" } },
@@ -229,7 +229,7 @@ export async function getCars(search = "") {
 
     const cars = await db.car.findMany({
       where,
-      orderdBy: { createdAt: "desc" },
+      orderBy: { createdAt: "desc" },
     });
 
     const serializeCars = cars.map(serializeCarData);
@@ -330,5 +330,41 @@ export async function deleteCar(carId) {
   } catch (error) {
     console.error("Delete Car error", error);
     return { success: false, error: error.message };
+  }
+}
+
+export async function updateCarStatus(id, { status, featured }) {
+  try {
+    const { userId } = await auth();
+    if (!userId) return ErrorMessage("User not Authorized!");
+
+    const user = await db.user.findUnique({
+      where: { clerkUserId: userId },
+    });
+
+    if (!user) return ErrorMessage("User Not Found!");
+
+    if (user.role !== "ADMIN") return ErrorMessage("User Not Authorized!");
+
+    let updateData = {};
+
+    if (status && status !== undefined) updateData.status = status;
+
+    if (featured && featured !== undefined) updateData.featured = featured;
+
+    await db.car.update({
+      where: { id },
+      data: updateData,
+    });
+
+    revalidatePath("/admin/cars");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating car status:", error);
+    return {
+      success: false,
+      error: error.message,
+    };
   }
 }
