@@ -219,7 +219,7 @@ export async function getCars(search = "") {
     if (search) {
       const terms = search.split(" ").filter(Boolean);
 
-      where.OR = terms.map((term) => [
+      where.OR = terms.flatMap((term) => [
         { make: { contains: term, mode: "insensitive" } },
         { model: { contains: term, mode: "insensitive" } },
         { color: { contains: term, mode: "insensitive" } },
@@ -229,7 +229,7 @@ export async function getCars(search = "") {
 
     const cars = await db.car.findMany({
       where,
-      orderdBy: { createdAt: "desc" },
+      orderBy: { createdAt: "desc" },
     });
 
     const serializeCars = cars.map(serializeCarData);
