@@ -43,7 +43,7 @@ function SearchBar({ className }) {
       data-ai="home-search"
     >
       <label htmlFor="site-search" className="sr-only">
-        Search vehicles, e.g. "Toyota SUV"
+        Search vehicles, e.g. &quot;Toyota SUV&quot;
       </label>
       <Search className="h-5 w-5 text-slate-500" aria-hidden="true" />
       <input
@@ -77,7 +77,7 @@ function SearchBar({ className }) {
 export default function Home() {
   return (
     <>
-        <main className="min-h-screen pt-16 sm:pt-20 animated-page-bg">
+      <main className="min-h-screen pt-16 sm:pt-20 animated-page-bg">
         {/* Hero */}
         <section
           className="dotted-background relative px-4 sm:px-6 lg:px-8 py-20 sm:py-24 md:py-32"
@@ -99,8 +99,8 @@ export default function Home() {
             <div className="mt-8">
               <SearchBar />
               <div className="mt-3 text-xs text-slate-500">
-                Tip: Try queries like "electric SUV under 50k" or "Toyota
-                Corolla 2020".
+                Tip: Try queries like &quot;electric SUV under 50k&quot; or
+                &quot;Toyota Corolla 2020&quot;.
               </div>
             </div>
           </div>
@@ -154,7 +154,10 @@ export default function Home() {
         >
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 id="browse-make" className="text-2xl sm:text-3xl font-bold text-slate-900">
+              <h2
+                id="browse-make"
+                className="text-2xl sm:text-3xl font-bold text-slate-900"
+              >
                 Browse by Make
               </h2>
               <Button variant="ghost" asChild>
@@ -252,7 +255,9 @@ export default function Home() {
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                    <h3 className="text-white text-lg font-bold">{type.name}</h3>
+                    <h3 className="text-white text-lg font-bold">
+                      {type.name}
+                    </h3>
                   </div>
                 </Link>
               ))}

@@ -16,17 +16,40 @@ import {
 import useFetch from "@/helpers/use-fetch";
 import Image from "next/image";
 import {
+  Car,
   CarIcon,
+  Eye,
   Loader2,
   MoreHorizontal,
   Plus,
   Search,
   Star,
   StarOff,
+  Trash2,
+  View,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import Link from "next/link";
 
 const CarList = () => {
   const [search, setSearch] = useState("");
@@ -48,13 +71,13 @@ const CarList = () => {
 
   const {
     loading: deletingCar,
-    fn: carDeleteFn,
+    fn: deleteCarFn,
     data: deleteResult,
     error: deleteError,
   } = useFetch(deleteCar);
 
   const {
-  loading: updatingCar,
+    loading: updatingCar,
     fn: updateCarStatusFn,
     data: updateResult,
     error: updateError,
@@ -66,8 +89,6 @@ const CarList = () => {
     if (updateError) toast.error("Failed to update car");
   }, [carsError, updateError, deleteError]);
 
-  console.log("cars data", carsData?.data);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -75,6 +96,31 @@ const CarList = () => {
 
     await fetchCars(search);
   };
+
+  const handleToogleStatus = async (car, newStatus) => {
+    await updateCarStatusFn(car.id, { status: newStatus });
+    await fetchCars(search);
+  };
+
+  const handleToogleFeatured = async (car) => {
+    await updateCarStatusFn(car.id, { featured: !car.featured });
+    await fetchCars(search);
+  };
+
+  const handleDeleteCar = async () => {
+    if (!carToDelete) return;
+
+    await deleteCarFn(carToDelete.id);
+    await fetchCars(search);
+    setDeleteDialogOpen(false);
+    setCarToDelete(null);
+  };
+
+  // useEffect(() => {
+  //   carsData?.data?.forEach((car) => {
+  //     router.prefetch(`/cars/${car.id}`);
+  //   });
+  // }, [carsData]);
 
   // Get status badge color
   const getStatusBadge = (status) => {
@@ -103,6 +149,12 @@ const CarList = () => {
     }
   };
 
+  const statusOptions = [
+    { label: "Set Available", value: "AVAILABLE" },
+    { label: "Set Unavailable", value: "UNAVAILABLE" },
+    { label: "Mark as Sold", value: "SOLD" },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -127,7 +179,7 @@ const CarList = () => {
       {/* Cars Table */}
       <Card>
         <CardContent>
-           {loadingCars && !carsData ? (
+          {loadingCars && !carsData ? (
             <div className="flex justify-center items-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
             </div>
@@ -139,12 +191,12 @@ const CarList = () => {
                   <TableHeader className="bg-white">
                     <TableRow className="sticky top-0 bg-white">
                       {/* image column header (small) */}
-                      <TableHead className="w-12" aria-hidden>
-                        
-                      </TableHead>
+                      <TableHead className="w-12" aria-hidden></TableHead>
 
                       {/* wider Make & Model column */}
-                      <TableHead className="min-w-[220px]">Make & Model</TableHead>
+                      <TableHead className="min-w-[220px]">
+                        Make & Model
+                      </TableHead>
 
                       <TableHead className="w-20">Year</TableHead>
                       <TableHead className="w-28">Price</TableHead>
@@ -176,64 +228,146 @@ const CarList = () => {
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="font-medium">{car.make} {car.model}</TableCell>
+                        <TableCell className="font-medium">
+                          {car.make} {car.model}
+                        </TableCell>
                         <TableCell>{car.year}</TableCell>
-                        <TableCell className="text-slate-700 font-semibold">{car.price}</TableCell>
+                        <TableCell className="text-slate-700 font-semibold">
+                          {car.price}
+                        </TableCell>
                         <TableCell>{getStatusBadge(car.status)}</TableCell>
                         <TableCell className="text-center">
-                          {car.featured ? (
-                            <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
-                          ) : (
-                            <StarOff className="h-4 w-4 text-gray-400" />
-                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="p-0 h-9 w-9"
+                            disabled={updatingCar}
+                            onClick={() => handleToogleFeatured(car)}
+                          >
+                            {car.featured ? (
+                              <Star className="h-5 w-5 text-amber-500 fill-amber-500" />
+                            ) : (
+                              <StarOff className="h-4 w-4 text-gray-400" />
+                            )}
+                          </Button>
                         </TableCell>
                         <TableCell className="text-right">
-                          <MoreHorizontal className="w-4 h-4" />
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="p-0 h-8 w-8"
+                              >
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                              <DropdownMenuItem
+                                onClick={() => router.push(`/cars/${car.id}`)}
+                              >
+                                <Eye className="w-4 h-4" /> View
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuLabel>Status</DropdownMenuLabel>
+                              {statusOptions.map((item, index) => (
+                                <DropdownMenuItem
+                                  key={item.value}
+                                  disabled={
+                                    car?.status === item.value || updatingCar
+                                  }
+                                  onClick={() =>
+                                    handleToogleStatus(car, item.value)
+                                  }
+                                >
+                                  {item.label}
+                                </DropdownMenuItem>
+                              ))}
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-red-600"
+                                onClick={() => {
+                                  setCarToDelete(car);
+                                  setDeleteDialogOpen(true);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
-
-              {/* Mobile/compact card list */}
-              <div className="md:hidden space-y-3">
-                {carsData?.data?.map((car) => (
-                  <div key={car.id} className="bg-white border border-slate-100 rounded-lg p-3 shadow-sm flex items-start gap-3">
-                    <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
-                      {car.images && car.images.length > 0 ? (
-                        <Image src={car.images[0]} alt={`${car.make} ${car.model}`} fill className="object-cover" priority />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <CarIcon className="h-5 w-5 text-gray-400" />
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="text-sm font-semibold truncate">{car.make} {car.model}</div>
-                        <div className="text-sm text-slate-500">{car.year}</div>
-                      </div>
-                      <div className="mt-2 flex items-center justify-between gap-3">
-                        <div className="text-sm font-semibold text-slate-700">{car.price}</div>
-                        <div className="flex items-center gap-2">
-                          <div>{getStatusBadge(car.status)}</div>
-                          <div>{car.featured ? <Star className="h-4 w-4 text-amber-500" /> : <StarOff className="h-4 w-4 text-gray-400" />}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </>
           ) : (
-            <>
-            
-            </>
+            <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center">
+              <div className="relative">
+                <div className="absolute inset-0 blur-2xl bg-gray-300 opacity-30 rounded-full scale-125 animate-pulse" />
+                <div className="relative flex flex-col items-center justify-center">
+                  <CarIcon className="w-16 h-16 text-gray-400 drop-shadow-md transform transition-transform hover:scale-110 hover:rotate-3" />
+                </div>
+              </div>
+
+              <h3 className="mt-6 text-xl font-bold bg-gradient-to-r from-gray-800 via-gray-600 to-black bg-clip-text text-transparent">
+                No Cars Found!
+              </h3>
+
+              <p className="text-gray-500 max-w-sm">
+                There are no cars available in the system yet.
+              </p>
+
+              <Button
+                asChild
+                className="mt-6 px-6 py-2 rounded-xl shadow-lg shadow-black/40 hover:shadow-black/60 transition-all transform hover:-translate-y-1 hover:scale-105"
+              >
+                <Link href="/admin/cars/create">🚗 Add Your First Car</Link>
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={deleteDialogOpen} isOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete your
+              account and remove your data from our servers.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deletingCar}
+            >
+              <X className="w-4 h-4" /> Close
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteCar}
+              disabled={deletingCar}
+            >
+              {deletingCar ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="m-4 h-4 " />
+                  Delete Car
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
