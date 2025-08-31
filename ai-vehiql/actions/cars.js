@@ -343,14 +343,13 @@ export async function updateCarStatus(id, { status, featured }) {
     });
 
     if (!user) return ErrorMessage("User Not Found!");
-
     if (user.role !== "ADMIN") return ErrorMessage("User Not Authorized!");
 
     let updateData = {};
 
-    if (status && status !== undefined) updateData.status = status;
+    if (status !== undefined) updateData.status = status;
 
-    if (featured && featured !== undefined) updateData.featured = featured;
+    if (featured !== undefined) updateData.featured = featured;
 
     await db.car.update({
       where: { id },
