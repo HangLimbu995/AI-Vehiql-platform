@@ -24,9 +24,9 @@ export async function getDealershipInfo() {
     if (!user || user.role !== "ADMIN") return ErrorMessage("Not Authorized");
 
     let dealership = await db.dealershipInfo.findFirst({
-      includes: {
+      include: {
         workingHours: {
-          orderBy: { workingHours: "asc" },
+          orderBy: { dayOfWeek: "asc" },
         },
       },
     });
@@ -81,7 +81,7 @@ export async function getDealershipInfo() {
             ],
           },
         },
-        includes: {
+        include: {
           workingHours: {
             orderBy: {
               dayOfWeek: "asc",
@@ -97,6 +97,11 @@ export async function getDealershipInfo() {
         ...dealership,
         createdAt: dealership.createdAt.toISOString(),
         updatedAt: dealership.updatedAt.toISOString(),
+        workingHours: dealership.workingHours.map((hour) => ({
+          ...hour,
+          createdAt: hour.createdAt.toISOString(),
+          updatedAt: hour.updatedAt.toISOString(),
+        })),
       },
     };
   } catch (error) {
@@ -110,22 +115,21 @@ export async function saveWorkingHours(workingHours) {
     if (!userId) return ErrorMessage("Unauthorized");
 
     const user = await db.user.findUnique({
-      where: { clerkUserid: userId },
+      where: { clerkUserId: userId },
     });
 
-    if (!user || user.role === "ADMIN") return ErrorMessage("Not Authorized");
+    if (!user || user.role !== "ADMIN") return ErrorMessage("Not Authorized");
 
     const dealership = await db.dealershipInfo.findFirst();
-
     if (!dealership) return ErrorMessage("DealerShip data not found!");
 
-    // To update working hours - First delete existing hours
-    await db.workingHours.deleteMany({
+    // Delete existing hours
+    await db.workingHour.deleteMany({
       where: { dealershipId: dealership.id },
     });
-
+    // Bulk create new hours
     for (let hour of workingHours) {
-      await db.workingHours.create({
+      await db.workingHour.create({
         data: {
           dayOfWeek: hour.dayOfWeek,
           isOpen: hour.isOpen,
@@ -141,7 +145,7 @@ export async function saveWorkingHours(workingHours) {
 
     return { success: true };
   } catch (error) {
-    throw new Error("Erro saving working horus:" + error.message);
+    throw new Error("Error saving working hours: " + error.message);
   }
 }
 
