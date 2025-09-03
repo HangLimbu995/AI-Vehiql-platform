@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 function serializeCarData(car) {
   return {
@@ -36,3 +37,5 @@ export async function getFeaturedCars(limit = 3) {
     throw new Error("Error fetching featured cars:" + error.message);
   }
 }
+
+
