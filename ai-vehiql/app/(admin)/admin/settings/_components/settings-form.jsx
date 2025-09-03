@@ -16,6 +16,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -34,8 +42,10 @@ import {
   Save,
   Search,
   Shield,
+  User2,
   Users,
   UserX,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -160,6 +170,19 @@ const SettingsForm = () => {
       [field]: value,
     };
     setWorkingHours(updatedHours);
+  };
+
+  const handleMakeAdmin = async () => {
+    if (!userToPromote) return;
+    await updateRole(userToPromote.id, "ADMIN");
+
+    setConfirmAdminDialog(false);
+  };
+
+  const handleRemoveAdmin = async () => {
+    if (!userToDemote) return;
+    await updateRole(userToDemote.id, "USER");
+    setConfirmRemoveDialog(false);
   };
 
   const handleSaveHours = async () => {
@@ -402,6 +425,92 @@ const SettingsForm = () => {
               )}
             </CardHeader>
           </Card>
+          {/* Confirm Make Admin Dialog */}
+          <Dialog
+            open={confirmAdminDialog}
+            onOpenChange={setConfirmAdminDialog}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirm Admin Privilage.</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to give admin privileages to{" "}
+                  {userToPromote?.name || userToPromote?.email}? Admin users can
+                  manage all aspects of the dealership
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setConfirmAdminDialog(false)}
+                  disabled={updatingRole}
+                  className="text-red-600"
+                >
+                  <X className="h4 w-4" /> Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={handleMakeAdmin}
+                  disabled={updatingRole}
+                >
+                  {updatingRole ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                      Updating...
+                    </>
+                  ) : (
+                    <><Shield className="w-4 h-4" />
+                    Make Admin
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog
+            open={confirmRemoveDialog}
+            onOpenChange={setConfirmRemoveDialog}
+          >
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Confirm to revoke Admin Privilage.</DialogTitle>
+                <DialogDescription>
+                Are you sure you want to revoke Admin Privilate from{" "}
+                  {userToDemote?.name || userToDemote?.email}? User will lose
+                  all Admin Privilages.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  size='sm'
+                  onClick={() => setConfirmRemoveDialog(false)}
+                  disabled={updatingRole}
+                  className="text-red-600"
+                >
+                  <X className="h4 w-4" /> Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  size='sm'
+                  onClick={handleRemoveAdmin}
+                  disabled={updatingRole}
+                >
+                  {updatingRole ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                      Removing...
+                    </>
+                  ) : (
+                    <>
+                    <User2 className="w-4 h-4" />
+                    Remove Admin
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
       </Tabs>
     </div>
